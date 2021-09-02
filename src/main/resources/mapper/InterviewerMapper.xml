@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.system.mapper.InterviewerMapper">
+    <resultMap id="BaseResultMap" type="com.system.entity.Interviewer">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="date" property="date" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="age" property="age" jdbcType="BIGINT"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="school" property="school" jdbcType="VARCHAR"/>
+        <result column="professional" property="professional" jdbcType="VARCHAR"/>
+        <result column="graduation_date" property="graduation_date" jdbcType="TIMESTAMP"/>
+        <result column="salary" property="salary" jdbcType="DECIMAL"/>
+        <result column="interview_date" property="interview_date" jdbcType="TIMESTAMP"/>
+        <result column="second_interview" property="second_interview" jdbcType="TINYINT"/>
+        <result column="interview_result" property="interview_result" jdbcType="VARCHAR"/>
+        <result column="working_date" property="working_date" jdbcType="TIMESTAMP"/>
+        <result column="note" property="note" jdbcType="VARCHAR"/>
+        <association property="state" javaType="com.system.entity.State" columnPrefix="s_">
+            <result property="id" column="id"/>
+            <result property="name" column="name"/>
+        </association>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from interviewer
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.system.entity.Interviewer">
+        insert into interviewer (id, date, name,
+                                 age, phone, school,
+                                 professional, graduation_date, salary,
+                                 interview_date, second_interview, interview_result,
+                                 working_date, note, state_id)
+        values (#{id,jdbcType=BIGINT}, #{date,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+                #{age,jdbcType=BIGINT}, #{phone,jdbcType=VARCHAR}, #{school,jdbcType=VARCHAR},
+                #{professional,jdbcType=VARCHAR}, #{graduation_date,jdbcType=TIMESTAMP}, #{salary,jdbcType=DECIMAL},
+                #{interview_date,jdbcType=TIMESTAMP}, #{second_interview}, #{interview_result,jdbcType=VARCHAR},
+                #{working_date,jdbcType=TIMESTAMP}, #{note,jdbcType=VARCHAR}, #{state.id})
+    </insert>
+    <update id="updateByPrimaryKey" parameterType="com.system.entity.Interviewer">
+        update interviewer
+        set date             = #{date,jdbcType=VARCHAR},
+            name             = #{name,jdbcType=VARCHAR},
+            age              = #{age,jdbcType=BIGINT},
+            phone            = #{phone,jdbcType=VARCHAR},
+            school           = #{school,jdbcType=VARCHAR},
+            professional     = #{professional,jdbcType=VARCHAR},
+            graduation_date  = #{graduation_date,jdbcType=TIMESTAMP},
+            salary           = #{salary,jdbcType=DECIMAL},
+            interview_date   = #{interview_date,jdbcType=TIMESTAMP},
+            second_interview = #{second_interview},
+            interview_result = #{interview_result,jdbcType=VARCHAR},
+            working_date     = #{working_date,jdbcType=TIMESTAMP},
+            note             = #{note,jdbcType=VARCHAR},
+            state_id         = #{state.id}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+        select id, date, name, age, phone, school, professional, graduation_date, salary,
+            interview_date, second_interview, interview_result, working_date, note, state_id
+        from interviewer
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <sql id="where_sql">
+        <where>
+            <if test="keyword != null and keyword !=''">
+                and i.name like concat('%',#{keyword},'%')
+                or i.phone like concat('%',#{keyword},'%')
+                or i.school like concat('%',#{keyword},'%')
+                or i.professional like concat('%',#{keyword},'%')
+                or i.salary like concat('%',#{keyword},'%')
+                or i.second_interview like concat('%',#{keyword},'%')
+                or i.interview_result like concat('%',#{keyword},'%')
+                or s.`name` like concat('%',#{keyword},'%')
+                or i.note like concat('%',#{keyword},'%')
+                or i.date like concat('%',#{keyword},'%')
+                or i.age like concat('%',#{keyword},'%')
+                or i.graduation_date like concat('%',#{keyword},'%')
+                or i.interview_date like concat('%',#{keyword},'%')
+                or i.working_date like concat('%',#{keyword},'%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select i.id,
+               i.date,
+               i.name,
+               i.age,
+               i.phone,
+               i.school,
+               i.professional,
+               i.graduation_date,
+               i.salary,
+               i.interview_date,
+               i.second_interview,
+               i.interview_result,
+               i.working_date,
+               i.note,
+               i.state_id,
+               s.id     as s_id,
+               s.`name` as s_name
+        from interviewer as i
+        LEFT JOIN state as s
+        on i.state_id = s.id
+        <include refid="where_sql"/>
+        order by i.id
+    </select>
+</mapper>

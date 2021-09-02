@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "text": "系统管理",
+    "children": [
+      {
+        "id":2,
+        "text": "面试信息",
+        "url": "/interview"
+      },
+      {
+        "id":3,
+        "text": "员工管理",
+         "url": "/employee"
+      },
+      {
+        "id":4,
+        "text": "权限管理",
+          "url": "/role"
+      },
+      {
+        "id":5,
+        "text": "菜单管理",
+        "url": "/menu"
+
+      }
+    ]
+  }
+]
