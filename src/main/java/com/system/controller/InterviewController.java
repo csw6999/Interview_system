@@ -202,6 +202,7 @@ public class InterviewController {
     @ResponseBody
     public void uploadExcel() {
         log.info("即将导入面试信息");
+        log.info("HHHH");
         XSSFWorkbook xssfSheets = new XSSFWorkbook();
         XSSFSheet sheetAt = xssfSheets.getSheetAt(0);
         int lastRowNum = sheetAt.getLastRowNum();
