@@ -11,8 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 @Service
@@ -38,6 +36,11 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public void saveInterviewer(Interviewer interviewer) {
         interviewerMapper.insert(interviewer);
+    }
+
+    @Override
+    public void add(Interviewer interviewer) {
+        interviewerMapper.add(interviewer);
     }
 
     @Override

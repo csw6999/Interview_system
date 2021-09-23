@@ -38,6 +38,18 @@
                 #{interview_date,jdbcType=TIMESTAMP}, #{second_interview}, #{interview_result,jdbcType=VARCHAR},
                 #{working_date,jdbcType=TIMESTAMP}, #{note,jdbcType=VARCHAR}, #{state.id})
     </insert>
+    <insert id="add" parameterType="com.system.entity.Interviewer">
+        insert into interviewer (id, date, name,
+                                 age, phone, school,
+                                 professional, graduation_date, salary,
+                                 interview_date, second_interview, interview_result,
+                                 working_date, note, state_id)
+        values (#{id}, #{date}, #{name},
+                #{age}, #{phone}, #{school},
+                #{professional}, #{graduation_date}, #{salary},
+                #{interview_date}, #{second_interview}, #{interview_result},
+                #{working_date}, #{note}, #{state.id})
+    </insert>
     <update id="updateByPrimaryKey" parameterType="com.system.entity.Interviewer">
         update interviewer
         set date             = #{date,jdbcType=VARCHAR},

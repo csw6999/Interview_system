@@ -10,6 +10,8 @@ public interface InterviewerMapper {
 
     int insert(Interviewer record);
 
+    void add(Interviewer interviewer);
+
     Interviewer selectByPrimaryKey(Long id);
 
     List<Interviewer> selectAll(QueryVo vo);

@@ -7,6 +7,7 @@ import com.system.entity.QueryVo;
 import com.system.mapper.InterviewerMapper;
 import com.system.service.InterviewService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -14,12 +15,19 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -145,7 +153,7 @@ public class InterviewController {
                 interviewerRow.createCell(2).setCellValue(interviewer.getName());
                 interviewerRow.createCell(3).setCellValue(interviewer.getAge());
                 interviewerRow.createCell(4).setCellValue(interviewer.getPhone());
-                interviewerRow.createCell(5).setCellValue(interviewer.getSchool());
+                 interviewerRow.createCell(5).setCellValue(interviewer.getSchool());
                 interviewerRow.createCell(6).setCellValue(interviewer.getProfessional());
                 if (interviewer.getGraduation_date() != null) {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -198,19 +206,73 @@ public class InterviewController {
     }
 
     /*从Excel导入面试信息*/
-    @RequestMapping("/uploadExcel")
+    @PostMapping("/uploadExcel")
     @ResponseBody
-    public void uploadExcel() {
-        log.info("即将导入面试信息");
-        log.info("HHHH");
-        XSSFWorkbook xssfSheets = new XSSFWorkbook();
-        XSSFSheet sheetAt = xssfSheets.getSheetAt(0);
-        int lastRowNum = sheetAt.getLastRowNum();
-        for (int i = 0; i < lastRowNum; i++) {
-            XSSFRow row = sheetAt.getRow(i);
-            log.info(String.valueOf(row));
-
+    public String upLoadXlsx(@RequestParam("file") MultipartFile file) throws IOException {
+        List<Interviewer> list=new ArrayList<Interviewer>();
+        //文件名
+        String filename=file.getOriginalFilename();
+        //创建一个文旦对象
+        Workbook workbook=null;
+        if(filename.endsWith("xlsx")){//Office 2007版本后excel.xls文件
+            workbook=new XSSFWorkbook(file.getInputStream());
+        }else if(filename.endsWith("xls")){//Office 2007版本前excel.xls文件
+            workbook=new HSSFWorkbook(file.getInputStream());
+        }else{
+            throw new RuntimeException("不是Excel文件");
         }
+        //獲取Sheet(表格業媚)
+        Sheet sheet=workbook.getSheetAt(0);
+        //獲取Row的數目
+        System.out.println("rows:_----------------------------"+sheet.getLastRowNum());
+        int rowNum=sheet.getLastRowNum();
+        if(rowNum==0){//行不能為空
+            throw new RuntimeException("沒有數據");
+        }
+        //遍歷所有的Row
+        for(int i=1;i<=rowNum;i++){
+            Row row=sheet.getRow(i);
+            if(row!=null){//行不為空則讀取數據
+                Interviewer interviewer=new Interviewer();
+                //讀取Cell的值
+                String date=row.getCell(1).getStringCellValue();
+                String name=row.getCell(2).getStringCellValue();
+                Cell cell = row.getCell(3);
+                cell.setCellType(Cell.CELL_TYPE_STRING);
+                Long age = Long.valueOf(cell.getStringCellValue());
+                String phone=row.getCell(4).getStringCellValue();
+                String school=row.getCell(5).getStringCellValue();
+                String professional=row.getCell(6).getStringCellValue();
+                Cell cell2 = row.getCell(7);
+                Date graduation_date = cell2.getDateCellValue();
+                Cell cell1 = row.getCell(8);
+                cell1.setCellType(Cell.CELL_TYPE_NUMERIC);
+                BigDecimal salary = BigDecimal.valueOf(Long.parseLong(String.valueOf(cell1.getNumericCellValue())));
+                Cell cell3 = row.getCell(9);
+                Date interview_date = cell3.getDateCellValue();
+                Cell cell4 = row.getCell(10);
+                Date working_date = cell4.getDateCellValue();
+                Boolean second_interview= row.getCell(11).getBooleanCellValue();
+                String interview_result=row.getCell(12).getStringCellValue();
+                String note=row.getCell(14).getStringCellValue();
+                interviewer.setDate(date);
+                interviewer.setName(name);
+                interviewer.setAge(age);
+                interviewer.setPhone(phone);
+                interviewer.setSchool(school);
+                interviewer.setProfessional(professional);
+                interviewer.setGraduation_date(graduation_date);
+                interviewer.setSalary(salary);
+                interviewer.setInterview_date(interview_date);
+                interviewer.setWorking_date(working_date);
+                interviewer.setNote(note);
+                interviewer.setInterview_result(interview_result);
+                interviewer.setSecond_interview(second_interview);
+                //list.add(interviewer);
+                //interviewService.add(interviewer);
+            }
+        }
+        return "文件导入成功";
     }
 }
 

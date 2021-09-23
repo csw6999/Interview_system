@@ -19,12 +19,6 @@
             <!--tree-->
             <ul id="tree"></ul>
         </div>
-        <div title="Title2" data-options="iconCls:'icon-more'" style="padding:10px;">
-            待开发
-        </div>
-        <div title="Title3" data-options="iconCls:'icon-more'" style="padding:10px;">
-            待开发
-        </div>
     </div>
 </div>
 <div data-options="region:'center'" style="background:#eee;">
