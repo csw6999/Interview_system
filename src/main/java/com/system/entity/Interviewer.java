@@ -43,4 +43,6 @@ public class Interviewer {
 
     private State state;
 
+    private int state_id;
+
 }

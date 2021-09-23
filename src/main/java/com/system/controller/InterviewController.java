@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -116,7 +117,7 @@ public class InterviewController {
             response.setHeader("Content-Disposition", "attachment;filename=" + filename);
             QueryVo queryVo = new QueryVo();
             queryVo.setPage(1);
-            queryVo.setRows(100);
+            queryVo.setRows(1000);
             PageListRes interview = interviewService.getInterview(queryVo);
             List<Interviewer> interviewers = (List<Interviewer>) interview.getRows();
             XSSFWorkbook sheets = new XSSFWorkbook();
@@ -208,8 +209,7 @@ public class InterviewController {
     /*从Excel导入面试信息*/
     @PostMapping("/uploadExcel")
     @ResponseBody
-    public String upLoadXlsx(@RequestParam("file") MultipartFile file) throws IOException {
-        List<Interviewer> list=new ArrayList<Interviewer>();
+    public AjaxRes upLoadXlsx(@RequestParam("file") MultipartFile file) throws IOException, ParseException {
         //文件名
         String filename=file.getOriginalFilename();
         //创建一个文旦对象
@@ -237,23 +237,38 @@ public class InterviewController {
                 //讀取Cell的值
                 String date=row.getCell(1).getStringCellValue();
                 String name=row.getCell(2).getStringCellValue();
-                Cell cell = row.getCell(3);
-                cell.setCellType(Cell.CELL_TYPE_STRING);
-                Long age = Long.valueOf(cell.getStringCellValue());
+                Cell ageCell = row.getCell(3);
+                ageCell.setCellType(Cell.CELL_TYPE_STRING);
+                Long age = Long.parseLong(ageCell.getStringCellValue());
                 String phone=row.getCell(4).getStringCellValue();
                 String school=row.getCell(5).getStringCellValue();
                 String professional=row.getCell(6).getStringCellValue();
-                Cell cell2 = row.getCell(7);
-                Date graduation_date = cell2.getDateCellValue();
-                Cell cell1 = row.getCell(8);
-                cell1.setCellType(Cell.CELL_TYPE_NUMERIC);
-                BigDecimal salary = BigDecimal.valueOf(Long.parseLong(String.valueOf(cell1.getNumericCellValue())));
-                Cell cell3 = row.getCell(9);
-                Date interview_date = cell3.getDateCellValue();
-                Cell cell4 = row.getCell(10);
-                Date working_date = cell4.getDateCellValue();
-                Boolean second_interview= row.getCell(11).getBooleanCellValue();
+                Cell graduation_dateCell = row.getCell(7);
+                graduation_dateCell.setCellType(Cell.CELL_TYPE_STRING);
+                String graduation_dateValue = graduation_dateCell.getStringCellValue();
+                SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+                Date graduation_date = sf.parse(graduation_dateValue);
+                Cell salaryCell = row.getCell(8);
+                salaryCell.setCellType(Cell.CELL_TYPE_STRING);
+                String salaryValue = salaryCell.getStringCellValue();
+                BigDecimal salary = new BigDecimal(salaryValue);
+                Cell interview_dateCell = row.getCell(9);
+                interview_dateCell.setCellType(Cell.CELL_TYPE_STRING);
+                String interview_dateValue = interview_dateCell.getStringCellValue();
+                SimpleDateFormat sf1 = new SimpleDateFormat("yyyy-MM-dd");
+                Date interview_date = sf1.parse(interview_dateValue);
+                Cell working_dateCell = row.getCell(10);
+                working_dateCell.setCellType(Cell.CELL_TYPE_STRING);
+                String working_dateValue = working_dateCell.getStringCellValue();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date working_date = simpleDateFormat.parse(working_dateValue);
+                Cell second_interviewCell = row.getCell(11);
+                second_interviewCell.setCellType(Cell.CELL_TYPE_STRING);
+                String second_interview = second_interviewCell.getStringCellValue();
                 String interview_result=row.getCell(12).getStringCellValue();
+                Cell stateCell = row.getCell(13);
+                stateCell.setCellType(Cell.CELL_TYPE_STRING);
+                String state = stateCell.getStringCellValue();
                 String note=row.getCell(14).getStringCellValue();
                 interviewer.setDate(date);
                 interviewer.setName(name);
@@ -267,12 +282,24 @@ public class InterviewController {
                 interviewer.setWorking_date(working_date);
                 interviewer.setNote(note);
                 interviewer.setInterview_result(interview_result);
-                interviewer.setSecond_interview(second_interview);
-                //list.add(interviewer);
-                //interviewService.add(interviewer);
+                interviewer.setSecond_interview("有".equals(second_interview));
+                if ("在职".equals(state)){
+                    interviewer.setState_id(1);
+                } else if ("离职".equals(state)){
+                    interviewer.setState_id(2);
+                } else if ("应届生".equals(state)){
+                    interviewer.setState_id(3);
+                } else if ("往届生".equals(state)){
+                    interviewer.setState_id(4);
+                }
+                interviewService.add(interviewer);
             }
         }
-        return "文件导入成功";
+        log.info("成功导入");
+        AjaxRes ajaxRes = new AjaxRes();
+            ajaxRes.setMsg("文件导入成功");
+            ajaxRes.setSuccess(true);
+        return ajaxRes;
     }
 }
 

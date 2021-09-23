@@ -16,6 +16,7 @@
         <result column="interview_result" property="interview_result" jdbcType="VARCHAR"/>
         <result column="working_date" property="working_date" jdbcType="TIMESTAMP"/>
         <result column="note" property="note" jdbcType="VARCHAR"/>
+        <result column="state_id" property="state_id" jdbcType="BIGINT"/>
         <association property="state" javaType="com.system.entity.State" columnPrefix="s_">
             <result property="id" column="id"/>
             <result property="name" column="name"/>
@@ -44,11 +45,11 @@
                                  professional, graduation_date, salary,
                                  interview_date, second_interview, interview_result,
                                  working_date, note, state_id)
-        values (#{id}, #{date}, #{name},
-                #{age}, #{phone}, #{school},
-                #{professional}, #{graduation_date}, #{salary},
-                #{interview_date}, #{second_interview}, #{interview_result},
-                #{working_date}, #{note}, #{state.id})
+        values (#{id,jdbcType=BIGINT}, #{date,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+                #{age,jdbcType=BIGINT}, #{phone,jdbcType=VARCHAR}, #{school,jdbcType=VARCHAR},
+                #{professional,jdbcType=VARCHAR}, #{graduation_date,jdbcType=TIMESTAMP}, #{salary,jdbcType=DECIMAL},
+                #{interview_date,jdbcType=TIMESTAMP}, #{second_interview}, #{interview_result,jdbcType=VARCHAR},
+                #{working_date,jdbcType=TIMESTAMP}, #{note,jdbcType=VARCHAR}, #{state_id,jdbcType=BIGINT})
     </insert>
     <update id="updateByPrimaryKey" parameterType="com.system.entity.Interviewer">
         update interviewer

@@ -219,9 +219,13 @@ $(function () {
         buttons:[{
             text:'上传',
             handler:function(){
+                var url = "uploadExcel"
                 $("#uploadForm").form("submit",{
-                   url: 'uploadExcel',
+                   url: url,
                    success:function (data) {
+                       console.log(data)
+                       /*解析成json*/
+                       data = $.parseJSON(data);
                         if(data.success){
                             $.messager.alert("温馨提示",data.msg);
                             /*关闭对话框*/
